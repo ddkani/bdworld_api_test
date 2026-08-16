@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         });
         binding.mainList.setLayoutManager(new LinearLayoutManager(this));
 
+
         RetrofitService networkService = RetrofitFactory.create();
         networkService.getList(KEY, "json", 1, 100, null)
                 .enqueue(new Callback<PageListModel>() {
@@ -110,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
             holder.binding.itemDesc.setText(String.format(Locale.KOREA,
                     "발생 %d건 · 사망 %d · 중상 %d · 경상 %d",
                     item.OCCUR_CNT, item.DPRS_CNT, item.SERINJRY_INDVDL_CNT, item.SLTINJRY_INDVDL_CNT));
+            holder.binding.itemCoord.setText(String.format(Locale.KOREA,
+                    "위도 %.6f · 경도 %.6f", item.LAT, item.LOGT));
         }
     }
 }

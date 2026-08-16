@@ -28,6 +28,14 @@
         android:layout_marginTop="6dp"
         android:textSize="13sp" />
 
+    <TextView
+        android:id="@+id/item_coord"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="12sp" />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
