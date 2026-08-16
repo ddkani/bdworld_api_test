@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -30,22 +31,39 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "apitest";
     private static final String KEY = "12808f33bce443cbb6e8742300db323c";
 
+    private ActivityMainBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        ViewCompat.setOnApplyWindowInsetsListener(binding.mainList, (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            binding.mainList.setPadding(0, 0, 0, systemBars.bottom);
             return insets;
         });
         binding.mainList.setLayoutManager(new LinearLayoutManager(this));
 
+        binding.mainSearchBtn.setOnClickListener(v -> {
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(binding.mainSearch.getWindowToken(), 0);
+            search();
+        });
 
+        search();
+    }
+
+    private void search() {
+        String sigunNm = binding.mainSearch.getText().toString().trim();
+        loadList(sigunNm.isEmpty() ? null : sigunNm);
+    }
+
+    private void loadList(String sigunNm) {
         RetrofitService networkService = RetrofitFactory.create();
-        networkService.getList(KEY, "json", 1, 100, null)
+        networkService.getList(KEY, "json", 1, 100, sigunNm)
                 .enqueue(new Callback<PageListModel>() {
                     @Override
                     public void onResponse(Call<PageListModel> call, Response<PageListModel> response) {
@@ -57,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
                             return;
                         }
                         // 이 API 는 에러·무데이터도 HTTP 200 + RESULT 봉투로 준다
+                        binding.mainList.setAdapter(null);
                         ResultModel result = body == null ? null : body.findResult();
                         String message = result == null
                                 ? "HTTP " + response.code()
